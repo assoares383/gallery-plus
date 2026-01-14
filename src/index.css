@@ -1,5 +1,5 @@
 @import "tailwindcss";
-@import 'tw-animations-css';
+@import 'tw-animate-css';
 
 @theme {
 	--color-*: initial;
