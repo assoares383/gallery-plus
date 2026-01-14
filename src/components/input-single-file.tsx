@@ -41,6 +41,8 @@ interface InputSingleFileProps
   extends VariantProps<typeof inputSingleFileVariants>,
     Omit<React.ComponentProps<"input">, "size"> {
   form: any;
+  allowedExtensions: string[];
+  maxFileSizeInMB: number;
   error?: React.ReactNode;
 }
 
@@ -48,18 +50,40 @@ export default function InputSingleFile({
   form,
   size,
   error,
+  allowedExtensions,
+  maxFileSizeInMB,
   ...props
 }: InputSingleFileProps) {
   const formValues = useWatch({ control: form.control });
   const name = props.name || "";
+
   const formFile: File = React.useMemo(
     () => formValues[name]?.[0],
     [formValues, name]
   );
 
+  const { fileExtension, fileSize } = React.useMemo(
+    () => ({
+      fileExtension: formFile?.name?.split(".")?.pop()?.toLowerCase() || "",
+      fileSize: formFile?.size || 0,
+    }), [formFile]
+  );
+
+  function isValidExtension() {
+    return allowedExtensions.includes(fileExtension);
+  }
+
+  function isFileSize() {
+    return fileSize <= maxFileSizeInMB * 1024 * 1024;
+  }
+
+  function isValidFile() {
+    return isValidExtension() && isFileSize();
+  }
+
   return (
     <div>
-      {!formFile ? (
+      {!formFile || !isValidFile() ? (
         <>
           <div className="w-full relative group cursor-pointer">
             <input
@@ -84,9 +108,19 @@ export default function InputSingleFile({
               </Text>
             </div>
           </div>
+          { formFile && !isValidExtension() && (
+            <Text variant="label-small" className="text-accent-red">
+              Tipo de arquivo invalido
+            </Text>
+          )}
+          { formFile && !isFileSize() && (
+            <Text variant="label-small" className="text-accent-red">
+              O tamanho do arquivo ultrapassa o maximo
+            </Text>
+          )}
           {error && (
             <Text variant="label-small" className="text-accent-red">
-              Erro no campo
+              {error}
             </Text>
           )}
         </>
