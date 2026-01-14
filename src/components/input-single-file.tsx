@@ -43,6 +43,7 @@ interface InputSingleFileProps
   form: any;
   allowedExtensions: string[];
   maxFileSizeInMB: number;
+  replaceBy: React.ReactNode;
   error?: React.ReactNode;
 }
 
@@ -52,6 +53,7 @@ export default function InputSingleFile({
   error,
   allowedExtensions,
   maxFileSizeInMB,
+  replaceBy,
   ...props
 }: InputSingleFileProps) {
   const formValues = useWatch({ control: form.control });
@@ -66,7 +68,8 @@ export default function InputSingleFile({
     () => ({
       fileExtension: formFile?.name?.split(".")?.pop()?.toLowerCase() || "",
       fileSize: formFile?.size || 0,
-    }), [formFile]
+    }),
+    [formFile]
   );
 
   function isValidExtension() {
@@ -108,12 +111,12 @@ export default function InputSingleFile({
               </Text>
             </div>
           </div>
-          { formFile && !isValidExtension() && (
+          {formFile && !isValidExtension() && (
             <Text variant="label-small" className="text-accent-red">
               Tipo de arquivo invalido
             </Text>
           )}
-          { formFile && !isFileSize() && (
+          {formFile && !isFileSize() && (
             <Text variant="label-small" className="text-accent-red">
               O tamanho do arquivo ultrapassa o maximo
             </Text>
@@ -125,30 +128,33 @@ export default function InputSingleFile({
           )}
         </>
       ) : (
-        <div className="flex gap-3 items-center border border-solid border-border-primary mt-5 p-3 rounded">
-          <Icon svg={FileImageIcon} className="w-6 h-6 fill-white" />
-          <div className="flex flex-col">
-            <div className="truncate max-w-80">
-              <Text variant="label-medium" className="text-placeholder">
-                {formFile.name}
-              </Text>
-            </div>
-            <div className="flex">
-              <button
-                type="button"
-                className={textVariants({
-                  variant: "label-small",
-                  className: "text-accent-red cursor-pointer hover:underline",
-                })}
-                onClick={() => {
-                  form.setValue(name, undefined);
-                }}
-              >
-                Remover
-              </button>
+        <>
+          { replaceBy }
+          <div className="flex gap-3 items-center border border-solid border-border-primary mt-5 p-3 rounded">
+            <Icon svg={FileImageIcon} className="w-6 h-6 fill-white" />
+            <div className="flex flex-col">
+              <div className="truncate max-w-80">
+                <Text variant="label-medium" className="text-placeholder">
+                  {formFile.name}
+                </Text>
+              </div>
+              <div className="flex">
+                <button
+                  type="button"
+                  className={textVariants({
+                    variant: "label-small",
+                    className: "text-accent-red cursor-pointer hover:underline",
+                  })}
+                  onClick={() => {
+                    form.setValue(name, undefined);
+                  }}
+                >
+                  Remover
+                </button>
+              </div>
             </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
